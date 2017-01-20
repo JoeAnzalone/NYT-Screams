@@ -38,7 +38,6 @@ class PostTweet extends Command
     public function handle()
     {
         $twitter = new \App\TwitterHelper;
-        $all_tweets = $twitter->getAllCachedTweets();
-        dd($all_tweets);
+        $result = $twitter->chooseLatestTweetAndReply();
     }
 }
