@@ -114,7 +114,8 @@ class TwitterHelper
             'cookies' => $cookie_jar,
         ])->getBody();
 
-        $crawler = new Crawler($html);
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($html);
 
         $og_title = $crawler->filter('[property="og:title"]')->first()->attr('content');
 
@@ -133,16 +134,16 @@ class TwitterHelper
         $expanded_url = $tweet['tweet']['entities']['urls'][0]['expanded_url'];
 
         $username = $tweet['tweet']['user']['screen_name'];
-        $article_title = $this->getPageTitle($expanded_url);
+        $article_title = $this->getPageTitle($expanded_url) . ' And We\'re Screaming!';
 
-        $filepath = 'shrek.png';
-        $file = file_get_contents($filepath);
-        $data = base64_encode($file);
-        $media_id = $this->uploadImage($data)['media_id'];
+        $image_data = (string) ImageHelper::createImage($article_title);
+        $image_data = base64_encode($image_data);
+
+        $media_id = $this->uploadImage($image_data)['media_id'];
 
         return [
             'in_reply_to_status_id' => $tweet['tweet']['id_str'],
-            'status' => sprintf('.@%s The article title is %s', $username, $article_title),
+            'status' => sprintf('.@%s', $username),
             'media_ids' => $media_id,
         ];
     }
