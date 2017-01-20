@@ -11,7 +11,8 @@
         "j7mbo/twitter-api-php": "dev-master",
         "symfony/dom-crawler": "^3.2",
         "symfony/css-selector": "^3.2",
-        "guzzlehttp/guzzle": "~6.0"
+        "guzzlehttp/guzzle": "~6.0",
+        "laravel/socialite": "^2.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
