@@ -62,8 +62,6 @@ class ImageHelper
 
         $canvas->setImageFormat('PNG');
 
-        $canvas->writeImage('/Users/anzalone/Downloads/wow.png');
-
         return $canvas;
     }
 }
