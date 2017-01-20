@@ -147,6 +147,8 @@ class TwitterHelper
         $tweet = $this->chooseLatestTweet($username);
         $reply = $this->craftReply($tweet);
         $this->markReplied($tweet);
-        $this->postTweet($reply);
+        $response = $this->postTweet($reply);
+
+        return $response;
     }
 }

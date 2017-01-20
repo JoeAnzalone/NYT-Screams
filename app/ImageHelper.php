@@ -60,6 +60,8 @@ class ImageHelper
             $canvas->annotateImage($draw, 0, 0 + ($i * $line_height), 0, $lines[$i]);
         }
 
+        $canvas->borderImage('#fff', 10, 10);
+
         $canvas->setImageFormat('PNG');
 
         return $canvas;
