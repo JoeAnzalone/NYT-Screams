@@ -104,14 +104,6 @@ class TwitterHelper
         }
     }
 
-    public function replyToTweet(string $id_to_reply_to, string $status)
-    {
-        return $this->postTweet([
-            'status' => $status,
-            'in_reply_to_status_id' => $id_to_reply_to,
-        ]);
-    }
-
     public function getPageTitle(string $url)
     {
         $client = new Client();
@@ -129,6 +121,13 @@ class TwitterHelper
         return $og_title;
     }
 
+    public function uploadImage(string $image_data)
+    {
+        return $this->postRequest('https://upload.twitter.com/1.1/media/upload.json', [
+            'media_data' => $image_data,
+        ]);
+    }
+
     public function craftReply(array $tweet)
     {
         $expanded_url = $tweet['tweet']['entities']['urls'][0]['expanded_url'];
@@ -136,13 +135,22 @@ class TwitterHelper
         $username = $tweet['tweet']['user']['screen_name'];
         $article_title = $this->getPageTitle($expanded_url);
 
-        return sprintf('.@%s The article title is %s', $username, $article_title);
+        $filepath = 'shrek.png';
+        $file = file_get_contents($filepath);
+        $data = base64_encode($file);
+        $media_id = $this->uploadImage($data)['media_id'];
+
+        return [
+            'in_reply_to_status_id' => $tweet['tweet']['id_str'],
+            'status' => sprintf('.@%s The article title is %s', $username, $article_title),
+            'media_ids' => $media_id,
+        ];
     }
 
     public function chooseLatestTweetAndReply()
     {
         $tweet = $this->chooseLatestTweet();
-        $status = $this->craftReply($tweet);
-        $this->replyToTweet($tweet['tweet']['id_str'], $status);
+        $reply = $this->craftReply($tweet);
+        $this->postTweet($reply);
     }
 }
