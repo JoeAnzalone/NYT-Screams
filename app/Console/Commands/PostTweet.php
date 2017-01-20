@@ -38,6 +38,6 @@ class PostTweet extends Command
     public function handle()
     {
         $twitter = new \App\TwitterHelper;
-        $result = $twitter->chooseLatestTweetAndReply();
+        $result = $twitter->chooseLatestTweetAndReply(env('TWITTER_TO_FOLLOW'));
     }
 }

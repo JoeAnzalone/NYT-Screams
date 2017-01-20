@@ -54,18 +54,7 @@ class TwitterHelper
             'contributor_details' => false,
         ];
 
-        $tweets_zero_indexed = $this->getRequest($url, $query_params);
-
-        $tweets = $this->getAllCachedTweets();
-
-        foreach ($tweets_zero_indexed as $tweet) {
-            $tweets[$tweet['id_str']]['replied'] = !empty($tweets[$tweet['id_str']]['replied']) ? $tweets[$tweet['id_str']]['replied'] : false;
-            $tweets[$tweet['id_str']]['tweet'] = $tweet;
-        }
-
-        Cache::put('tweets', $tweets, 60);
-
-        return $tweets;
+        return $this->getRequest($url, $query_params);
     }
 
     public function postTweet(array $tweet)
@@ -77,19 +66,15 @@ class TwitterHelper
         return $response;
     }
 
-    public function getAllCachedTweets()
+    public function chooseLatestTweet(string $username)
     {
-        return Cache::get('tweets', []);
-    }
-
-    public function chooseLatestTweet()
-    {
-        $tweets = $this->getAllCachedTweets();
+        $tweets = $this->getTweetsByUsername($username);
+        $replied = Cache::get('replied', []);
 
         foreach ($tweets as $tweet) {
-            $urls = $tweet['tweet']['entities']['urls'];
+            $urls = $tweet['entities']['urls'];
 
-            if ($tweet['replied'] || !count($urls)) {
+            if (in_array($tweet['id'], $replied) || !count($urls)) {
                 continue;
             }
 
@@ -131,9 +116,9 @@ class TwitterHelper
 
     public function craftReply(array $tweet)
     {
-        $expanded_url = $tweet['tweet']['entities']['urls'][0]['expanded_url'];
+        $expanded_url = $tweet['entities']['urls'][0]['expanded_url'];
 
-        $username = $tweet['tweet']['user']['screen_name'];
+        $username = $tweet['user']['screen_name'];
         $article_title = $this->getPageTitle($expanded_url) . ' And We\'re Screaming!';
 
         $image_data = (string) ImageHelper::createImage($article_title);
@@ -142,16 +127,26 @@ class TwitterHelper
         $media_id = $this->uploadImage($image_data)['media_id'];
 
         return [
-            'in_reply_to_status_id' => $tweet['tweet']['id_str'],
+            'in_reply_to_status_id' => $tweet['id_str'],
             'status' => sprintf('.@%s', $username),
             'media_ids' => $media_id,
         ];
     }
 
-    public function chooseLatestTweetAndReply()
+    public function markReplied(array $tweet)
     {
-        $tweet = $this->chooseLatestTweet();
+        $replied = Cache::get('replied', []);
+
+        $replied[] = $tweet['id'];
+
+        Cache::forever('replied', $replied);
+    }
+
+    public function chooseLatestTweetAndReply(string $username)
+    {
+        $tweet = $this->chooseLatestTweet($username);
         $reply = $this->craftReply($tweet);
+        $this->markReplied($tweet);
         $this->postTweet($reply);
     }
 }
