@@ -3,6 +3,8 @@
 namespace App;
 
 use Cache;
+use Symfony\Component\DomCrawler\Crawler;
+use GuzzleHttp\Client;
 use TwitterAPIExchange;
 
 class TwitterHelper
@@ -112,8 +114,19 @@ class TwitterHelper
 
     public function getPageTitle(string $url)
     {
-        $html = file_get_contents($url);
-        return '';
+        $client = new Client();
+
+        $cookie_jar = new \GuzzleHttp\Cookie\CookieJar();
+
+        $html = (string) $client->request('GET', $url, [
+            'cookies' => $cookie_jar,
+        ])->getBody();
+
+        $crawler = new Crawler($html);
+
+        $og_title = $crawler->filter('[property="og:title"]')->first()->attr('content');
+
+        return $og_title;
     }
 
     public function craftReply(array $tweet)
