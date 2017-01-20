@@ -4,21 +4,21 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-class GetLatestTweets extends Command
+class PostTweet extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'tweets:latest';
+    protected $signature = 'tweet:post';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get the latest tweets from the NYT or whoever';
+    protected $description = 'Post a tweet in response to someone';
 
     /**
      * Create a new command instance.
@@ -38,6 +38,7 @@ class GetLatestTweets extends Command
     public function handle()
     {
         $twitter = new \App\TwitterHelper;
-        dd($twitter->getTweetsByUsername(env('TWITTER_TO_FOLLOW')));
+        $all_tweets = $twitter->getAllCachedTweets();
+        dd($all_tweets);
     }
 }
