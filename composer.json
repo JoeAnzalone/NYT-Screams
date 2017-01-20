@@ -10,7 +10,8 @@
         "vlucas/phpdotenv": "~2.2",
         "j7mbo/twitter-api-php": "dev-master",
         "symfony/dom-crawler": "^3.2",
-        "symfony/css-selector": "^3.2"
+        "symfony/css-selector": "^3.2",
+        "guzzlehttp/guzzle": "~6.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
